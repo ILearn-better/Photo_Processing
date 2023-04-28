@@ -211,6 +211,34 @@ void soft(Mat img, float index) {
 	waitKey(0);
 
 }
+void sharpen(Mat img) {
+	// 缩小亮度范围，增强对比度
+	/*
+	为什么要做两次convertScaleAbs?
+	答:convertScaleAbs 函数的作用是将输入矩阵中的每个元素进行缩放和转换，并将结果存储在输出矩阵中。这个函数在对图像进行缩放和类型转换时非常有用。
+在这段代码中，第一次调用 convertScaleAbs 函数的目的是将输入图像的像素值限制在 0-255 的范围内，这样可以避免出现负数或超出 0-255 范围的像素值。这个操作可以增强图像的对比度。
+第二次调用 convertScaleAbs 函数的目的是将输入图像的像素值缩放到更小的范围内，从而增加图像的亮度。在这段代码中，第二个参数 0.005 是缩放因子，它将输入图像的像素值乘以 0.005，从而将其缩放到更小的范围内。
+因此，这两次调用 convertScaleAbs 函数的目的是分别增强图像的对比度和亮度，以使锐化后的图像更加清晰和明亮。
+	*/
+	convertScaleAbs(img, img);
+	convertScaleAbs(img, img, 0.005, 0);
+
+	// 计算图像的梯度
+	Mat dx, dy;
+	Sobel(img, dx, CV_32F, 1, 0);
+	Sobel(img, dy, CV_32F, 0, 1);
+
+	// 计算梯度幅值，并将其归一化到 0-255 范围内
+	Mat result;
+	magnitude(dx, dy, result);
+	normalize(result, result, 0, 255, NORM_MINMAX);
+
+	// 显示原始图像和锐化后的图像
+	imshow("Original Image", img);
+	imshow("Sharpened Image", result);
+	waitKey(0);
+}
+
 int main()
 {  
 	
@@ -235,7 +263,9 @@ int main()
 	//mouse();
 	//clip_img(img);
 	//color_transform(img);
-	soft(img, 1);
+	//soft(img, 1);
+
+	sharpen(img);
 	system("pause");
 	return 0;
 
